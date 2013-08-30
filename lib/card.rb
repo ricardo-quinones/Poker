@@ -1,10 +1,11 @@
 # -*- coding: utf-8 -*-
+require 'colorize'
 
 class Card
   SUIT_STRINGS = {
     clubs: "♣",
-    diamonds: "♦",
-    hearts: "♥",
+    diamonds: "♦".colorize(:red),
+    hearts: "♥".colorize(:red),
     spades: "♠"
   }
 
@@ -54,8 +55,16 @@ class Card
     @suit = suit
     @value = value
   end
-  
+
   def straight_value
     STRAIGHT_VALUES[self.value]
+  end
+
+  def render_value
+    VALUE_STRINGS[self.value]
+  end
+
+  def render_suit
+    SUIT_STRINGS[self.suit]
   end
 end

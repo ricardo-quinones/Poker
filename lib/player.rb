@@ -1,4 +1,4 @@
-require 'hand'
+require_relative 'hand'
 
 class Player
 
@@ -20,6 +20,10 @@ class Player
   end
 
   def turn(current_bet)
+    self.hand.cards.each_with_index do |card, index|
+      print "#{card.render_value} #{card.render_suit}"
+      print ", " unless index == 4
+    end
     puts "\nType 'b' to bet or press enter to check?" if current_bet == 0
     puts "\nWould you like to call, raise, or fold?" if current_bet > 0
     case parse(gets)
@@ -52,6 +56,10 @@ class Player
     end
 
     cards.count
+  end
+  
+  def exchange_cards?
+    #write me PLEASE!!
   end
 
 end
