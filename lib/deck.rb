@@ -1,7 +1,7 @@
 require_relative 'card'
 
 class Deck
-  attr_reader :deck
+  attr_accessor :cards
 
   def self.all_cards
     [].tap do |array|
@@ -13,23 +13,27 @@ class Deck
     end
   end
 
-  def initialize(deck = Deck.all_cards)
-    @deck = deck
+  def initialize(cards = Deck.all_cards)
+    @cards = cards
   end
 
   def count
-    deck.count
+    self.cards.count
   end
 
   def shuffle!
-    self.deck.shuffle!
+    self.cards.shuffle!
   end
 
   def dup
-    self.deck.dup
+    self.cards.dup
   end
 
   def draw
-    self.deck.pop
+    self.cards.shift
+  end
+
+  def return_cards(cards)
+    self.cards += cards
   end
 end

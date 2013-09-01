@@ -1,13 +1,25 @@
 require_relative 'hand'
 
 class Player
+  DEFAULT_NAMES = [
+    "Chris 'Jesus' Ferguson",
+    "Dan 'Action Dan' Harrington",
+    "Johnny 'The Orient Express' Chan",
+    "Phil 'The Poker Brat' Hellmuth"
+  ]
 
-  attr_accessor :money, :hand
+  def self.names(num)
+    DEFAULT_NAMES[num]
+  end
 
-  def initialize(money = 500)
-    #@name = name
+  attr_accessor :money, :hand, :bet_in_round
+  attr_reader :name
+
+  def initialize(name, money = 500)
+    @name = name
     @money = money
     @hand = nil
+    @bet_in_round = 0
   end
 
   def bet(amount)
@@ -20,21 +32,31 @@ class Player
   end
 
   def turn(current_bet)
-    self.hand.cards.each_with_index do |card, index|
-      print "#{card.render_value} #{card.render_suit}"
-      print ", " unless index == 4
-    end
-    puts "\nType 'b' to bet or press enter to check?" if current_bet == 0
-    puts "\nWould you like to call, raise, or fold?" if current_bet > 0
+    self.hand.render_cards
+    puts "\n#{self.name}, you have $#{@money} in your bankroll."
+    puts "Type 'b' to bet or press enter to check?" if current_bet == 0
+    puts "Would you like to call, raise, or fold?" if current_bet > 0
     case parse(gets)
     when "b"
       puts "\nHow much would you like to bet?"
-      self.bet(gets.chomp.to_i)
+      bet = self.bet(gets.chomp.to_i)
+      @bet_in_round += bet
+      bet
     when "r"
       puts "\nBy how much would you like to raise?"
-      self.bet(current_bet + gets.chomp.to_i)
+      call_bet = current_bet - @bet_in_round
+      raise_bet = gets.chomp.to_i
+      bet = self.bet(call_bet + raise_bet)
+      @bet_in_round += bet
+      bet
     when "c"
-      self.bet(current_bet)
+      p "player bet is #{@bet_in_round}"
+      call_bet = current_bet - @bet_in_round
+      bet = self.bet(call_bet)
+      p "bet is #{bet}"
+      @bet_in_round += bet
+      p "player bet is #{@bet_in_round}"
+      bet
     when "f"
       self.fold
     when "\n"
@@ -48,18 +70,32 @@ class Player
 
   def cards_to_swap
     puts "\nWhat cards would you like to exchange?"
-    cards = gets.chomp.split(",")
-    cards.each do |card_string|
-      card.string.split(" ").each do |value, suit|
-        self.hand.discard(value, suit)
-      end
+    cards = []
+    card_strings = gets.chomp.split(",").map(&:strip)
+    card_syms = card_strings.map { |card_string| card_string.split(" ").map(&:to_sym) }
+    card_syms.each do |card_sym|
+      value, suit = card_sym[0], card_sym[1]
+      cards << self.hand.strings_to_card(value, suit)
+      self.hand.discard(value, suit)
     end
 
-    cards.count
+    cards
   end
   
   def exchange_cards?
-    #write me PLEASE!!
+    self.hand.render_cards
+    puts "\n#{self.name}, would you like to exchange cards?"
+    gets.chomp.downcase[0] == "y"
   end
 
+  def pay_winnings(pot)
+    puts "\n#{self.name} won the pot!"
+    @money += pot
+  end
+
+  def return_cards
+    cards = self.hand.cards.dup
+    self.hand = nil
+    cards
+  end
 end
