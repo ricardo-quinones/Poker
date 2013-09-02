@@ -1,3 +1,5 @@
+# originally created by Ricardo Quinones and Cesario Uy
+
 require_relative 'deck'
 require_relative 'hand'
 require_relative 'player'
