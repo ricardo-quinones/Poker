@@ -32,35 +32,57 @@ class Player
   end
 
   def turn(current_bet)
-    self.hand.render_cards
-    puts "\n#{self.name}, you have $#{@money} in your bankroll."
-    puts "Type 'b' to bet or press enter to check?" if current_bet == 0
-    puts "Would you like to call, raise, or fold?" if current_bet > 0
-    case parse(gets)
-    when "b"
-      puts "\nHow much would you like to bet?"
-      bet = self.bet(gets.chomp.to_i)
-      @bet_in_round += bet
-      bet
-    when "r"
-      puts "\nBy how much would you like to raise?"
-      call_bet = current_bet - @bet_in_round
-      raise_bet = gets.chomp.to_i
-      bet = self.bet(call_bet + raise_bet)
-      @bet_in_round += bet
-      bet
-    when "c"
-      p "player bet is #{@bet_in_round}"
-      call_bet = current_bet - @bet_in_round
-      bet = self.bet(call_bet)
-      p "bet is #{bet}"
-      @bet_in_round += bet
-      p "player bet is #{@bet_in_round}"
-      bet
-    when "f"
-      self.fold
-    when "\n"
-      self.bet(0)
+    begin
+      self.hand.render_cards
+      puts "\n#{self.name}, you have $#{@money} in your bankroll."
+      puts "Type 'b' to bet or press enter to check?" if current_bet == 0
+      puts "It is $#{current_bet - self.bet_in_round} to call." if current_bet > 0
+      puts "Would you like to call, raise, or fold?" if current_bet > 0 && self.money > current_bet - self.bet_in_round
+      puts "Would you like to call or fold?" if current_bet - self.bet_in_round == self.money
+      case parse(gets)
+      when "b"
+        puts "\nHow much would you like to bet?"
+        begin
+          bet = gets.chomp.to_i
+          raise "That's not a number." unless bet > 0
+          raise "You don't have that much money" if bet > self.money
+        rescue StandardError => e
+          puts e.message
+          retry
+        end
+          bet = self.bet(bet)
+          self.bet_in_round += bet
+          bet
+      when "r"
+        raise "You don't have enough money to raise." if current_bet - self.bet_in_round == self.money
+        puts "\nBy how much would you like to raise?"
+        begin
+          raise_bet = gets.chomp.to_i
+          raise "That's not a number." unless raise_bet > 0
+          raise "You don't have that much money." if current_bet + raise_bet > self.money
+        rescue StandardError => e
+          puts e.message
+          retry
+        end
+        call_bet = current_bet - self.bet_in_round
+        bet = self.bet(call_bet + raise_bet)
+        self.bet_in_round += bet
+        bet
+      when "c"
+        call_bet = current_bet - self.bet_in_round
+        bet = self.bet(call_bet)
+        self.bet_in_round += bet
+        bet
+      when "f"
+        self.fold
+      when "\n"
+        self.bet(0)
+      else
+        raise "Sorry, try selecting again."
+      end
+    rescue StandardError => e
+      puts e.message
+      retry
     end
   end
 

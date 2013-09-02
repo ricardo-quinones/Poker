@@ -24,7 +24,6 @@ class Game
       rescue StandardError => e
         puts e.message
       end
-      
       @players_in_round.each do |player|
         self.deck.cards += player.return_cards
       end
@@ -111,7 +110,7 @@ class Game
 
   def card_exchange
     self.players_in_round.each do |player|
-      if player.exchange_cards? #make this method
+      if player.exchange_cards?
         cards = player.cards_to_swap
         cards.count.times do
           player.hand.cards << self.deck.draw
@@ -130,7 +129,7 @@ class Game
     loop do
       dup_players = self.players_in_round.dup
       dup_players.each_with_index do |player, index|
-        puts "\nThe pot is $#{pot} and the current bet is $#{current_bet}."
+        puts "\nThe pot is $#{pot}."
         next if player.nil?
         bet = player.turn(current_bet)
         if !bet.nil?
